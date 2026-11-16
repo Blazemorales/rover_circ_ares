@@ -25,7 +25,7 @@
 <robot name="rover"
     xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <!-- RGBD camera render load (see hugoplate/content/english/pages/desempenho-simulacao.md). Defaults are
+    <!-- RGBD camera render load (see docs/site/content/english/pages/desempenho-simulacao.md). Defaults are
          the original high-fidelity profile; sim_lite uses 320x240 @ 10 Hz. -->
     <xacro:arg name="camera_width" default="720"/>
     <xacro:arg name="camera_height" default="480"/>

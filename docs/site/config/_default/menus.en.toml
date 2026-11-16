@@ -1,0 +1,54 @@
+############# English navigation ##############
+
+# main menu
+[[main]]
+name = "Home"
+url = "/"
+weight = 1
+
+# EXEMPLO DE ITEM PAI
+[[main]]
+identifier = "simulacao" # ID único que os filhos vão referenciar
+name = "Simulação"
+url = "#" # Use "#" se o pai não tiver uma página própria, ou coloque a URL se tiver
+weight = 2
+
+# EXEMPLO DE FILHOS DO ITEM "Simulação"
+[[main]]
+parent = "simulacao" # Deve ser exatamente igual ao 'identifier' do pai
+name = "Comandos Essenciais"
+url = "/comandos-essenciais-simulacao"
+weight = 1 # Ordem dentro do submenu
+
+[[main]]
+parent = "simulacao"
+name = "Desempenho"
+url = "/desempenho-simulacao"
+weight = 2
+
+# OUTROS ITENS NORMAIS
+[[main]]
+name = "Diário de Bordo"
+url = "/diario-de-bordo"
+weight = 3
+
+[[main]]
+name = "ROS-MCP"
+url = "/ros-mcp"
+weight = 4
+
+[[main]]
+name = "Chat Web"
+url = "/chat-web"
+weight = 5
+
+[[main]]
+name = "Requisitos CIRC"
+url = "/requisitos-circ"
+weight = 6
+
+[[main]]
+parent = "simulacao"
+name = "Dev Container"
+url = "/dev-container"
+weight = 3

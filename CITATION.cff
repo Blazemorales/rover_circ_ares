@@ -1,8 +1,16 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
+title: "rover_circ_ares"
+abstract: "ROS 2 software for the ARES team's planetary rover at the Canadian International Rover Challenge (CIRC): Gazebo simulation, SLAM, Nav2 for uneven terrain and natural-language missions through MCP."
 authors:
-  - family-names: "González-Santamarta"
-    given-names: "Miguel Á."
-title: "ros2_rover"
-date-released: 2021-07-28
-url: "https://github.com/mgonzs13/ros2_rover"
+  - name: "Equipe ARES"
+url: "https://github.com/Blazemorales/rover_circ_ares"
+license: MIT
+references:
+  - type: software
+    title: "ros2_rover"
+    authors:
+      - family-names: "González-Santamarta"
+        given-names: "Miguel Á."
+    url: "https://github.com/mgonzs13/ros2_rover"
+    date-released: 2021-07-28

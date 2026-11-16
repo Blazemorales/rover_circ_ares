@@ -53,7 +53,7 @@ def generate_launch_description():
     sim_lite_cmd = DeclareLaunchArgument(
         "sim_lite",
         default_value="False",
-        description="Light camera profile (see hugoplate/content/english/pages/desempenho-simulacao.md)",
+        description="Light camera profile (see docs/site/content/english/pages/desempenho-simulacao.md)",
     )
 
     headless = LaunchConfiguration("headless")

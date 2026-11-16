@@ -105,7 +105,7 @@ def generate_launch_description():
             "sim_lite",
             default_value="False",
             description="Light camera profile (320x240 @ 10 Hz, no point "
-            "cloud, local costmap on /scan). See hugoplate/content/english/pages/desempenho-simulacao.md",
+            "cloud, local costmap on /scan). See docs/site/content/english/pages/desempenho-simulacao.md",
         ),
         *[
             DeclareLaunchArgument(k, default_value="", description="'' = profile")

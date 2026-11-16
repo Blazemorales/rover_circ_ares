@@ -137,7 +137,7 @@ def generate_launch_description():
         description="Map yaml file to localize on, required when slam:=False",
     )
 
-    # --- Simulation render load (hugoplate/content/english/pages/desempenho-simulacao.md) ---
+    # --- Simulation render load (docs/site/content/english/pages/desempenho-simulacao.md) ---
     # sim_lite:=true -> RGBD 320x240 @ 10 Hz, no /camera/points on the bridge,
     # local costmap fed by /scan. Each knob can be overridden on its own
     # (empty = take it from the profile).

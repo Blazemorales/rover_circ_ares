@@ -4,8 +4,8 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/ros2_ws/src/ros2_rover,type=bind",
-  "workspaceFolder": "/workspaces/ros2_ws/src/ros2_rover",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/ros2_ws/src/rover_circ_ares,type=bind",
+  "workspaceFolder": "/workspaces/ros2_ws/src/rover_circ_ares",
 
   "runArgs": [
     "--net=host",

@@ -32,7 +32,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: docs
+          publish_dir: build/doxygen
           destination_dir: api/${{ github.event.release.tag_name }}
           keep_files: true
 

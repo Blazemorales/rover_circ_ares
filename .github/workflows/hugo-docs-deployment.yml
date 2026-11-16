@@ -1,11 +1,11 @@
-# Builds hugoplate/ with Hugo and publishes it to the root of gh-pages.
+# Builds docs/site/ with Hugo and publishes it to the root of gh-pages.
 # API reference docs (doxygen-deployment.yml) live under /api/ on the same branch.
 name: Hugo Docs Deployment
 
 on:
   push:
     branches: ["main"]
-    paths: ["hugoplate/**", ".github/workflows/hugo-docs-deployment.yml"]
+    paths: ["docs/site/**", ".github/workflows/hugo-docs-deployment.yml"]
   workflow_dispatch:
 
 env:
@@ -20,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: hugoplate
+        working-directory: docs/site
 
     steps:
       - name: Checkout code
@@ -40,14 +40,14 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          package_json_file: hugoplate/package.json
+          package_json_file: docs/site/package.json
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: hugoplate/pnpm-lock.yaml
+          cache-dependency-path: docs/site/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -60,5 +60,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: hugoplate/public
+          publish_dir: docs/site/public
           keep_files: true

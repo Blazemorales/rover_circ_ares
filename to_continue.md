@@ -2,10 +2,10 @@
 
 Rover Sawppy simulado (ROS 2 Jazzy + Gazebo Harmonic) que explora sozinho
 (SLAM + `explore_lite` + Nav2) e pode ser comandado em linguagem natural por um
-LLM local via MCP. Tudo abaixo já está em `main` de `Blazemorales/ros2_nav2`.
+LLM local via MCP. Tudo abaixo já está em `main` de `Blazemorales/rover_circ_ares`.
 
 Documentação detalhada no site Hugo (`hugoplate/`, publicado em
-blazemorales.github.io/ros2_nav2): páginas **ROS-MCP** e **Desempenho da
+blazemorales.github.io/rover_circ_ares): páginas **ROS-MCP** e **Desempenho da
 simulação**.
 
 ## O que já está pronto

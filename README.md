@@ -8,7 +8,7 @@
 
 **English** · [Português](README.pt-BR.md)
 
-ROS 2 software for a planetary rover, aimed at the
+This is the official repository from ARES - UnB for ROS 2, aimed at the
 [Canadian International Rover Challenge (CIRC)](https://circ.cstag.ca/).
 It runs a Sawppy-style rocker-bogie rover in Gazebo with SLAM, autonomous
 exploration and Nav2 tuned for uneven terrain, and it can take missions in

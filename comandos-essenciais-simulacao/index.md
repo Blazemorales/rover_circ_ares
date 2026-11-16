@@ -23,7 +23,7 @@ Baseado no repositório [`ros2_rover`](https://github.com/mgonzs13/ros2_rover)
 ## 1. Build da imagem Docker
 
 ```shell
-cd ~/Documentos/ros2_rover   # raiz do repo, onde está o Dockerfile
+cd rover_circ_ares   # raiz do repo, onde está o Dockerfile
 docker build -t rover .
 ```
 
@@ -118,7 +118,7 @@ os bugs corrigidos no caminho) no [Diário de Bordo](/diario-de-bordo).
 ## 6. Serviço Linux (opcional, produção/boot automático)
 
 ```shell
-cd ~/ros2_ws/src/ros2_rover/ros2/rover_service
+cd ~/ros2_ws/src/rover_circ_ares/ros2/rover_service
 sudo ./install.sh
 sudo service rover status
 ```

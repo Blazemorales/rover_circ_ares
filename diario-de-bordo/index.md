@@ -11,6 +11,33 @@ momento — o que foi decidido, o que quebrou e como foi corrigido. Ver também
 os [Comandos Essenciais](/comandos-essenciais-simulacao) para rodar o que
 está descrito aqui.
 
+## 2026-11-16 — Pendências em aberto
+
+Estado consolidado das pendências técnicas (antes no `to_continue.md`, que
+saiu da raiz do repositório na reorganização).
+
+**Navegação no terreno lunar:** melhorou de ~1/7 para 6/7 goals com o perfil
+`uneven_terrain` (detalhes em [Chat Web](/chat-web)). Próximo passo: detectar
+rampas íngremes de verdade com a câmera de profundidade (análise de
+inclinação), já que o lidar 2D não distingue chão de parede.
+
+**Chat web:** falta validar com Groq e Render reais. Já foi validado
+localmente com o Ollama.
+
+**Desempenho:** a meta de RTF ≥ 0,6 não foi atingida (0,42 com `sim_lite`).
+O custo restante é fixo: física com passo de 1 ms (o `moon.world` não tem
+bloco `<physics>`) e o gpu_lidar. A próxima ideia é testar `max_step_size`
+0,002/0,004 com checagens de sanidade.
+
+**Não bloqueantes:**
+- O footprint em `ros2/rover_navigation/params/costmaps.yaml` é um placeholder
+  de 0,6×0,6 m, não a medida real do chassi.
+- A rolling window do `global_costmap` tem 30×30 m. Se o explore parecer
+  "míope", aumente.
+- Avisos ocasionais de "Control loop missed its desired rate" e "Message
+  Filter dropping message" vêm de contenção de CPU. `headless:=true` e
+  `sim_lite:=true` ajudam.
+
 ## 2026-11-11 — ROS-MCP e desempenho da simulação
 
 **ROS-MCP:** o rover passou a aceitar comandos em linguagem natural via Model

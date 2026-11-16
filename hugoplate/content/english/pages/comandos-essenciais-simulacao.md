@@ -119,7 +119,7 @@ os bugs corrigidos no caminho) no [Diário de Bordo](/diario-de-bordo).
 ## 6. Serviço Linux (opcional, produção/boot automático)
 
 ```shell
-cd ~/ros2_ws/src/ros2_rover/rover_service
+cd ~/ros2_ws/src/ros2_rover/ros2/rover_service
 sudo ./install.sh
 sudo service rover status
 ```
@@ -142,8 +142,8 @@ ps -eo pid=,comm= | awk '$1 != 1 {print $1}' | xargs -r kill
 | Docker | build/execução de tudo | instalar manualmente no host |
 | ROS 2 Jazzy | base do workspace | vem na imagem `ros:jazzy` do Dockerfile |
 | Gazebo Harmonic | simulação 3D | trazido pelas dependências `ros_gz_sim` / `ros_gz_bridge` via rosdep |
-| `gz_ros2_control` | controllers do rover na simulação | rosdep, declarado em `rover_gazebo/package.xml` |
-| `ros2controlcli` | ativa os controllers (`ros2 control load_controller ...`) | rosdep, declarado em `rover_gazebo/package.xml` |
+| `gz_ros2_control` | controllers do rover na simulação | rosdep, declarado em `ros2/rover_gazebo/package.xml` |
+| `ros2controlcli` | ativa os controllers (`ros2 control load_controller ...`) | rosdep, declarado em `ros2/rover_gazebo/package.xml` |
 | `slam_toolbox` | mapeamento (SLAM) | pacote `rover_slam` |
 | `explore_lite` (fork `robo-friends/m-explore-ros2`) | exploração autônoma de fronteiras | pacote `rover_slam` |
 | Nav2 (`SmacHybrid`/`SmacLattice` + `RPP`/`TEB`) | navegação/desvio de obstáculos | pacote `rover_navigation`, já existente no repo upstream |

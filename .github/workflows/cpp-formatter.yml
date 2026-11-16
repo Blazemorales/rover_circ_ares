@@ -15,4 +15,4 @@ jobs:
           clangFormatVersion: 14
           source: "."
           # vendored third-party package: keep it byte-identical to upstream
-          exclude: "./explore_lite"
+          exclude: "./ros2/explore_lite"

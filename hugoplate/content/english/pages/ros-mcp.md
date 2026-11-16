@@ -27,8 +27,8 @@ Nav2 + slam_toolbox/AMCL + explore_lite
 |---|---|
 | `Dockerfile`, `.devcontainer/Dockerfile` | instalam `ros-jazzy-rosbridge-server` |
 | `.devcontainer/devcontainer.json` | `forwardPorts: [9090]` (com `--net=host` a porta já é do host) |
-| `rover_bringup/launch/rosbridge.launch.py` | rosbridge + rosapi; serve também na Pi |
-| `rover_bringup/launch/rover_mcp_sim.launch.py` | entry point único da simulação |
+| `ros2/rover_bringup/launch/rosbridge.launch.py` | rosbridge + rosapi; serve também na Pi |
+| `ros2/rover_bringup/launch/rover_mcp_sim.launch.py` | entry point único da simulação |
 | `tools/rover_mcp_safe/rover_mcp_safe.py` | servidor MCP restrito (o que o LLM enxerga) |
 | `tools/rover_mcp_safe/test_policy.py` | teste offline da política (sem ROS) |
 | `tools/rover_mcp_safe/smoke_test.py` | teste MCP ponta a ponta contra a simulação |
@@ -48,7 +48,7 @@ ros2 launch rover_bringup rover_mcp_sim.launch.py slam:=true explore:=false
 # nav2_planner, nav2_controller, rosbridge_port
 ```
 
-`rover_mcp_sim.launch.py` reaproveita `rover_gazebo/launch/gazebo.launch.py`
+`rover_mcp_sim.launch.py` reaproveita `ros2/rover_gazebo/launch/gazebo.launch.py`
 inteiro (Gazebo → EKF → slam_toolbox/AMCL → Nav2 → explore_lite) via
 `IncludeLaunchDescription` e só acrescenta o rosbridge, 5 s depois. Nenhuma
 configuração de Nav2 foi duplicada. O mundo padrão é `moon.world`
@@ -98,7 +98,7 @@ Opções avaliadas, na ordem do plano:
 ### Segunda camada: o próprio rosbridge
 
 O rosbridge 2.7 do Jazzy aceita globs de permissão.
-`rover_bringup/launch/rosbridge.launch.py` sobe o `rosbridge_websocket` como
+`ros2/rover_bringup/launch/rosbridge.launch.py` sobe o `rosbridge_websocket` como
 `Node` (e não pelo XML oficial, que não repassa `actions_glob`) com:
 
 | Parâmetro | Default | Efeito |

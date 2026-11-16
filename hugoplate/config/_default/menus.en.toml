@@ -32,6 +32,11 @@ url = "/chat-web"
 weight = 6
 
 [[main]]
+name = "Requisitos CIRC"
+url = "/requisitos-circ"
+weight = 7
+
+[[main]]
 parent = "Pages"
 name = "404 Page"
 url = "/404"

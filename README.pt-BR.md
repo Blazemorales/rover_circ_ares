@@ -8,7 +8,7 @@
 
 [English](README.md) · **Português**
 
-Software ROS 2 de um rover planetário, voltado para a
+Este é o repositório oficial da ARES - UnB para o ROS2, voltado para a
 [Canadian International Rover Challenge (CIRC)](https://circ.cstag.ca/).
 Roda um rover rocker-bogie no estilo Sawppy no Gazebo, com SLAM, exploração
 autônoma e Nav2 ajustado para terreno irregular, e aceita missões em linguagem

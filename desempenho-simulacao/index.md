@@ -103,13 +103,13 @@ local passa a usar o lidar (2D, ±1 rad à frente) via `ObstacleLayer`.
 
 Onde está:
 
-- `rover_description/robots/rover.urdf.xacro` — `xacro:arg` `camera_width`,
+- `ros2/rover_description/robots/rover.urdf.xacro` — `xacro:arg` `camera_width`,
   `camera_height`, `camera_rate` (defaults = perfil completo)
-- `rover_description/launch/robot_state_publisher.launch.py` e
-  `rover_gazebo/launch/include/spawn.launch.py` — repassam os args ao xacro
-- `rover_gazebo/launch/gazebo.launch.py` — `sim_lite` + ajuste fino, bridge
+- `ros2/rover_description/launch/robot_state_publisher.launch.py` e
+  `ros2/rover_gazebo/launch/include/spawn.launch.py` — repassam os args ao xacro
+- `ros2/rover_gazebo/launch/gazebo.launch.py` — `sim_lite` + ajuste fino, bridge
   com/sem nuvem, `local_obstacle_source` para o Nav2
-- `rover_navigation/launch/bringup.launch.py` — `local_obstacle_source:=camera|scan`
+- `ros2/rover_navigation/launch/bringup.launch.py` — `local_obstacle_source:=camera|scan`
 
 ## Validação da localização (perfil leve)
 

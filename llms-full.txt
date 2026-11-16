@@ -282,7 +282,7 @@ os bugs corrigidos no caminho) no [Diário de Bordo](/diario-de-bordo).
 ## 6. Serviço Linux (opcional, produção/boot automático)
 
 ```shell
-cd ~/ros2_ws/src/ros2_rover/rover_service
+cd ~/ros2_ws/src/ros2_rover/ros2/rover_service
 sudo ./install.sh
 sudo service rover status
 ```
@@ -305,8 +305,8 @@ ps -eo pid=,comm= | awk '$1 != 1 {print $1}' | xargs -r kill
 | Docker | build/execução de tudo | instalar manualmente no host |
 | ROS 2 Jazzy | base do workspace | vem na imagem `ros:jazzy` do Dockerfile |
 | Gazebo Harmonic | simulação 3D | trazido pelas dependências `ros_gz_sim` / `ros_gz_bridge` via rosdep |
-| `gz_ros2_control` | controllers do rover na simulação | rosdep, declarado em `rover_gazebo/package.xml` |
-| `ros2controlcli` | ativa os controllers (`ros2 control load_controller ...`) | rosdep, declarado em `rover_gazebo/package.xml` |
+| `gz_ros2_control` | controllers do rover na simulação | rosdep, declarado em `ros2/rover_gazebo/package.xml` |
+| `ros2controlcli` | ativa os controllers (`ros2 control load_controller ...`) | rosdep, declarado em `ros2/rover_gazebo/package.xml` |
 | `slam_toolbox` | mapeamento (SLAM) | pacote `rover_slam` |
 | `explore_lite` (fork `robo-friends/m-explore-ros2`) | exploração autônoma de fronteiras | pacote `rover_slam` |
 | Nav2 (`SmacHybrid`/`SmacLattice` + `RPP`/`TEB`) | navegação/desvio de obstáculos | pacote `rover_navigation`, já existente no repo upstream |
@@ -418,13 +418,13 @@ local passa a usar o lidar (2D, ±1 rad à frente) via `ObstacleLayer`.
 
 Onde está:
 
-- `rover_description/robots/rover.urdf.xacro` — `xacro:arg` `camera_width`,
+- `ros2/rover_description/robots/rover.urdf.xacro` — `xacro:arg` `camera_width`,
   `camera_height`, `camera_rate` (defaults = perfil completo)
-- `rover_description/launch/robot_state_publisher.launch.py` e
-  `rover_gazebo/launch/include/spawn.launch.py` — repassam os args ao xacro
-- `rover_gazebo/launch/gazebo.launch.py` — `sim_lite` + ajuste fino, bridge
+- `ros2/rover_description/launch/robot_state_publisher.launch.py` e
+  `ros2/rover_gazebo/launch/include/spawn.launch.py` — repassam os args ao xacro
+- `ros2/rover_gazebo/launch/gazebo.launch.py` — `sim_lite` + ajuste fino, bridge
   com/sem nuvem, `local_obstacle_source` para o Nav2
-- `rover_navigation/launch/bringup.launch.py` — `local_obstacle_source:=camera|scan`
+- `ros2/rover_navigation/launch/bringup.launch.py` — `local_obstacle_source:=camera|scan`
 
 ## Validação da localização (perfil leve)
 
@@ -878,8 +878,8 @@ Nav2 + slam_toolbox/AMCL + explore_lite
 |---|---|
 | `Dockerfile`, `.devcontainer/Dockerfile` | instalam `ros-jazzy-rosbridge-server` |
 | `.devcontainer/devcontainer.json` | `forwardPorts: [9090]` (com `--net=host` a porta já é do host) |
-| `rover_bringup/launch/rosbridge.launch.py` | rosbridge + rosapi; serve também na Pi |
-| `rover_bringup/launch/rover_mcp_sim.launch.py` | entry point único da simulação |
+| `ros2/rover_bringup/launch/rosbridge.launch.py` | rosbridge + rosapi; serve também na Pi |
+| `ros2/rover_bringup/launch/rover_mcp_sim.launch.py` | entry point único da simulação |
 | `tools/rover_mcp_safe/rover_mcp_safe.py` | servidor MCP restrito (o que o LLM enxerga) |
 | `tools/rover_mcp_safe/test_policy.py` | teste offline da política (sem ROS) |
 | `tools/rover_mcp_safe/smoke_test.py` | teste MCP ponta a ponta contra a simulação |
@@ -899,7 +899,7 @@ ros2 launch rover_bringup rover_mcp_sim.launch.py slam:=true explore:=false
 # nav2_planner, nav2_controller, rosbridge_port
 ```
 
-`rover_mcp_sim.launch.py` reaproveita `rover_gazebo/launch/gazebo.launch.py`
+`rover_mcp_sim.launch.py` reaproveita `ros2/rover_gazebo/launch/gazebo.launch.py`
 inteiro (Gazebo → EKF → slam_toolbox/AMCL → Nav2 → explore_lite) via
 `IncludeLaunchDescription` e só acrescenta o rosbridge, 5 s depois. Nenhuma
 configuração de Nav2 foi duplicada. O mundo padrão é `moon.world`
@@ -949,7 +949,7 @@ Opções avaliadas, na ordem do plano:
 ### Segunda camada: o próprio rosbridge
 
 O rosbridge 2.7 do Jazzy aceita globs de permissão.
-`rover_bringup/launch/rosbridge.launch.py` sobe o `rosbridge_websocket` como
+`ros2/rover_bringup/launch/rosbridge.launch.py` sobe o `rosbridge_websocket` como
 `Node` (e não pelo XML oficial, que não repassa `actions_glob`) com:
 
 | Parâmetro | Default | Efeito |

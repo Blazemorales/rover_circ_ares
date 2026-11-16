@@ -6,46 +6,53 @@ name = "Home"
 url = "/"
 weight = 1
 
-# EXEMPLO DE ITEM PAI
 [[main]]
 identifier = "simulacao" # ID único que os filhos vão referenciar
-name = "Simulação"
-url = "#" # Use "#" se o pai não tiver uma página própria, ou coloque a URL se tiver
+name = "Simulation"
+url = "#" 
 weight = 2
 
-# EXEMPLO DE FILHOS DO ITEM "Simulação"
 [[main]]
 parent = "simulacao" # Deve ser exatamente igual ao 'identifier' do pai
-name = "Comandos Essenciais"
+name = "Essencial Comands"
 url = "/comandos-essenciais-simulacao"
 weight = 1 # Ordem dentro do submenu
 
 [[main]]
 parent = "simulacao"
-name = "Desempenho"
+name = "Benchmarking"
 url = "/desempenho-simulacao"
 weight = 2
 
-# OUTROS ITENS NORMAIS
 [[main]]
-name = "Diário de Bordo"
-url = "/diario-de-bordo"
+parent = "simulacao"
+name = "ROS with MCP"
+url = "/ros-mcp"
 weight = 3
 
 [[main]]
-name = "ROS-MCP"
-url = "/ros-mcp"
+identifier = "Documentação"
+name = "Documentation"
+url = "#"
 weight = 4
 
+# OUTROS ITENS NORMAIS
 [[main]]
-name = "Chat Web"
-url = "/chat-web"
-weight = 5
+parent = "Documentação"
+name = "Diary"
+url = "/diario-de-bordo"
+weight = 1
 
 [[main]]
-name = "Requisitos CIRC"
+parent = "Documentação"
+name = "AI Web Server"
+url = "/chat-web"
+weight = 2
+
+[[main]]
+name = "Goals"
 url = "/requisitos-circ"
-weight = 6
+weight = 5
 
 [[main]]
 parent = "simulacao"

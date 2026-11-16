@@ -1,6 +1,6 @@
 # ROS2 Rover
 
-> Hugo & Tailwindcss Starter
+> Documentação sobre o desenvolvimento da navegação autônoma (Nav2) do rover da equipe ARES
 
 ## Pages
 - [Home](https://blazemorales.github.io/rover_circ_ares/index.md)

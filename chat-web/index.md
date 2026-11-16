@@ -75,6 +75,28 @@ cd ~/Documentos/ros2_nav2
 Depois abra a URL no navegador (funciona no celular também), digite a senha e
 mande ordens: "onde você está?", "vá para x=2, y=0", "ative a exploração", "pare".
 
+Para parar tudo: `docker stop rover_mcp`.
+
+### Com a interface gráfica (Gazebo + RViz)
+
+Para ver o rover se mover enquanto conversa com ele, troque o passo 1 por:
+
+```bash
+xhost +SI:localuser:root          # libera o X para o root do container (vale até deslogar)
+docker start rover_mcp
+docker exec -it -e DISPLAY=:1 -e QT_X11_NO_MITSHM=1 rover_mcp bash
+source /opt/ros/jazzy/setup.bash && source /root/ros2_ws/install/setup.bash
+ros2 launch rover_bringup rover_mcp_sim.launch.py \
+  slam:=true explore:=false headless:=false launch_rviz:=true sim_lite:=true
+```
+
+O container usa `--net=host`, então ele alcança o socket do X do desktop sem
+montar `/tmp/.X11-unix`. Confira o número do display com `echo $DISPLAY` no host
+(aqui é `:1`). Sem GPU, o Gazebo renderiza pela CPU, e a simulação fica mais
+lenta que no modo headless. Se pesar demais, use `headless:=true launch_rviz:=true`:
+o RViz é bem mais leve e já mostra o mapa, a pose e o caminho do Nav2. Se a janela
+do Gazebo ficar preta, entre no container também com `-e LIBGL_ALWAYS_SOFTWARE=1`.
+
 ## Teste local, sem Render
 
 ```bash
@@ -95,6 +117,19 @@ Sem GPU, porém, ele leva cerca de 1,5 min por resposta.
 - **A cota do Groq free** é limitada por minuto e por dia. Se estourar, a página
   mostra "the free LLM quota is exhausted". Espere e tente de novo.
 - **Um agente por vez:** um agente novo derruba o anterior.
+- **Uma simulação por vez.** Duas simulações ao mesmo tempo (por exemplo, uma
+  headless esquecida e uma nova com GUI) publicam no mesmo `/clock`. O tempo da
+  simulação "volta" (`Detected jump back in time` no log), e o EKF
+  (`robot_localization`) diverge para NaN, sem se recuperar. As tools passam a
+  responder `LOCALIZATION BROKEN`, e o LLM avisa que é preciso reiniciar a
+  simulação. A solução é `docker restart rover_mcp`, que mata tudo, e subir uma
+  única simulação. Para conferir antes de lançar: `docker exec rover_mcp pgrep -a gz`.
+- **Reinicie o `agent.py` depois de atualizar o código.** Ele carrega o
+  `rover_mcp_safe` só ao iniciar.
+- **`model_not_found` (404) no chat** quase sempre é erro de digitação em
+  `LLM_MODEL` no dashboard do Render (por exemplo, um ponto final colado junto:
+  `openai/gpt-oss-120b.`). O valor do dashboard tem prioridade sobre o padrão do
+  código. Confira em `/health`, no campo `model`.
 - **Distâncias longas demoram.** A simulação roda a ~0,4× o tempo real: 6 m
   levam cerca de 1,5 min, e 10 m passam de 5 min. O `navigate_to` espera até
   600 s por padrão (`ROVER_MCP_NAV_TIMEOUT`).

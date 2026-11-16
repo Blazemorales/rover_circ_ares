@@ -74,10 +74,10 @@ content = "<span class='text-center block'>♥️ Loving Hugoplate? <a class='un
 # seo meta data for OpenGraph / Twitter Card
 # seo module: https://github.com/gethugothemes/hugo-modules/tree/master/seo-tools/basic-seo
 [metadata]
-keywords = ["Boilerplate", "Hugo"]
-description = "Hugo & Tailwindcss Starter"
-author = "zeon.studio"
-twitter = "zeon_studio"
+keywords = ["ROS 2", "Nav2", "rover", "ARES", "CIRC", "Gazebo"]
+description = "Documentação sobre o desenvolvimento da navegação autônoma (Nav2) do rover da equipe ARES"
+author = "Equipe ARES"
+twitter = ""
 image = "images/logo_ARES.png"
 
 

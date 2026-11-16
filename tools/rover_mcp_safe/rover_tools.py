@@ -1,6 +1,6 @@
 """High-level rover operations over rosbridge, exposed as dedicated MCP tools.
 
-Why these exist (see the LLM test in hugoplate/content/english/pages/ros-mcp.md):
+Why these exist (see the LLM test in docs/site/content/english/pages/ros-mcp.md):
   - the generic send_action_goal returns "success": true even when Nav2 ABORTED
     the goal, so the model claimed it had arrived;
   - explore_lite kept sending its own goals and preempted the model's;

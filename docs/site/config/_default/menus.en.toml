@@ -1,0 +1,61 @@
+############# English navigation ##############
+
+# main menu
+[[main]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[main]]
+identifier = "simulacao" # ID único que os filhos vão referenciar
+name = "Simulation"
+url = "#" 
+weight = 2
+
+[[main]]
+parent = "simulacao" # Deve ser exatamente igual ao 'identifier' do pai
+name = "Essencial Comands"
+url = "/comandos-essenciais-simulacao"
+weight = 1 # Ordem dentro do submenu
+
+[[main]]
+parent = "simulacao"
+name = "Benchmarking"
+url = "/desempenho-simulacao"
+weight = 2
+
+[[main]]
+parent = "simulacao"
+name = "ROS with MCP"
+url = "/ros-mcp"
+weight = 3
+
+[[main]]
+identifier = "Documentação"
+name = "Documentation"
+url = "#"
+weight = 4
+
+# OUTROS ITENS NORMAIS
+[[main]]
+parent = "Documentação"
+name = "Diary"
+url = "/diario-de-bordo"
+weight = 1
+
+[[main]]
+parent = "Documentação"
+name = "AI Web Server"
+url = "/chat-web"
+weight = 2
+
+[[main]]
+name = "Goals"
+url = "/requisitos-circ"
+weight = 5
+
+[[main]]
+parent = "simulacao"
+name = "Dev Container"
+url = "/dev-container"
+weight = 3

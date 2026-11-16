@@ -1,9 +1,25 @@
-.vscode
-log
-__pycache__/
-.obsidian/
-
 # colcon workspace output: never commit (built per machine, inside the container)
 build/
 install/
 log/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Secrets and local settings
+.env
+.env.*
+
+# Editors / local tooling
+.vscode/
+.idea/
+.obsidian/
+.claude/
+*.swp
+.DS_Store
+
+# Documentation site (docs/site has its own .gitignore for public/, resources/)
+node_modules/

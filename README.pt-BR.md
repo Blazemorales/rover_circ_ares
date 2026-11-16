@@ -1,5 +1,11 @@
 # rover_circ_ares
 
+[![Docker Build](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/docker-build.yml/badge.svg)](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/docker-build.yml)
+[![Tests](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/tests.yml/badge.svg)](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/tests.yml)
+[![Python format](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/python-formatter.yml/badge.svg)](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/python-formatter.yml)
+[![C++ format](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/cpp-formatter.yml/badge.svg)](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/cpp-formatter.yml)
+[![Docs](https://github.com/Blazemorales/rover_circ_ares/actions/workflows/hugo-docs-deployment.yml/badge.svg)](https://blazemorales.github.io/rover_circ_ares/)
+
 [English](README.md) · **Português**
 
 Software ROS 2 de um rover planetário, voltado para a
@@ -14,8 +20,61 @@ natural por MCP e por um chat web.
   e a issue de acompanhamento [#26](https://github.com/Blazemorales/rover_circ_ares/issues/26)
 
 <div align="center">
-  <img src="docs/rover.png" width="60%"/>
+  <img src="docs/images/rover.png" width="60%"/>
 </div>
+
+## Para avaliadores: onde encontrar cada coisa
+
+| Quero ver… | Onde está |
+|---|---|
+| O que o rover faz e como o software se encaixa | [Arquitetura](#arquitetura), logo abaixo |
+| Como compilar e rodar a partir de uma máquina limpa | [Comandos essenciais](#comandos-essenciais) (só Docker, nada mais no host) |
+| Prova de que compila e de que os testes de segurança passam | [Actions](https://github.com/Blazemorales/rover_circ_ares/actions): build do Docker, testes, formatação |
+| Código-fonte ROS 2 | [`ros2/`](ros2/), um pacote colcon por função (tabela abaixo) |
+| Ajustes da navegação autônoma | [`ros2/rover_navigation/params/`](ros2/rover_navigation/params/), [`behavior_trees/`](ros2/rover_navigation/behavior_trees/) |
+| Missões em linguagem natural (LLM) e a camada de segurança | [`tools/`](tools/) e a [página ROS-MCP](https://blazemorales.github.io/rover_circ_ares/ros-mcp/) |
+| Diário de engenharia: decisões, bugs, medições | [Diário de Bordo](https://blazemorales.github.io/rover_circ_ares/diario-de-bordo/) |
+| Situação frente às regras da CIRC | [Checklist de requisitos CIRC](https://blazemorales.github.io/rover_circ_ares/requisitos-circ/) |
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+  subgraph Sensors
+    LIDAR["2D lidar<br/>/scan"]
+    RGBD["RGBD camera"]
+    IMU["IMU"]
+  end
+  RGBD --> VO["rtabmap RGBD odometry"]
+  VO --> EKF["EKF<br/>robot_localization"]
+  IMU --> EKF
+  LIDAR --> SLAM["slam_toolbox / AMCL<br/>/map"]
+  EKF --> SLAM
+  SLAM --> NAV["Nav2<br/>planner + controller + BT"]
+  LIDAR --> NAV
+  EXP["explore_lite<br/>frontier goals"] --> NAV
+  LLM["LLM (Ollama / Groq)"] --> MCP["rover_mcp_safe<br/>MCP proxy, /cmd_vel blocked"]
+  MCP -->|rosbridge :9090<br/>Nav2 goals only| NAV
+  NAV -->|/cmd_vel| VP["vel_parser<br/>rocker-bogie kinematics"]
+  VP --> SIM["Gazebo: ros2_control"]
+  VP --> REAL["Real rover: LX-16A servos"]
+```
+
+- **Localização:** odometria visual da câmera RGBD fundida com a IMU num EKF;
+  o slam_toolbox monta o mapa (ou o AMCL localiza num mapa salvo).
+- **Navegação:** Nav2 com costmaps ajustados para terreno sem paredes
+  (`uneven_terrain`), behavior tree que replaneja e tenta de novo, e
+  explore_lite para exploração autônoma de fronteiras.
+- **Atuação:** o `vel_parser` converte `/cmd_vel` em comandos de direção e
+  rodas do rocker-bogie; os mesmos nós acionam o Gazebo ou os servos LX-16A reais.
+- **Camada de IA:** o LLM só manda goals de navegação e lê estado, por um
+  proxy MCP restrito. Ele nunca publica velocidades.
+
+### Mundos da simulação
+
+| Lua (mundo principal de testes) | Marte | Floresta |
+|---|---|---|
+| <img src="docs/images/moon.png" width="260"/> | <img src="docs/images/mars.png" width="260"/> | <img src="docs/images/forest.png" width="260"/> |
 
 ## Estrutura do repositório
 
@@ -32,7 +91,11 @@ natural por MCP e por um chat web.
 | `ros2/explore_lite(_msgs)` | Exploração de fronteiras (cópia vendorizada) |
 | `ros2/rover_service` | Serviço systemd que sobe o rover real no boot |
 | `tools/` | Proxy MCP (`rover_mcp_safe`), chat web (`rover_web`), medidor de RTF |
-| `hugoplate/` | Site da documentação (Hugo) |
+| `docs/site/` | Site da documentação (Hugo), publicado em <https://blazemorales.github.io/rover_circ_ares/> |
+| `docs/images/` | Imagens usadas nos READMEs |
+| `.github/workflows/` | CI: build do Docker, testes offline, formatação, deploy do site e da API |
+| `Dockerfile`, `.devcontainer/` | Ambiente reproduzível (ROS 2 Jazzy + Gazebo Harmonic) |
+| `render.yaml` | Blueprint do Render para o chat web (precisa ficar na raiz) |
 
 ## Comandos essenciais
 
@@ -127,6 +190,9 @@ ros2 launch rover_gazebo mars.launch.py
 ros2 launch rover_gazebo forest.launch.py
 ```
 
+A navegação é ajustada e testada no mundo da Lua; Marte e Floresta não foram
+revalidados recentemente.
+
 ### Rover real
 
 ```bash
@@ -137,6 +203,16 @@ cd ~/ros2_ws/src/rover_circ_ares/ros2/rover_service
 sudo ./install.sh
 sudo service rover status
 ```
+
+## Testes e CI
+
+| Verificação | Como | Onde roda |
+|---|---|---|
+| O workspace compila do zero (rosdep + colcon) | `docker build -t rover:latest .` | CI quando mudam `ros2/` ou o `Dockerfile` |
+| Política de segurança do proxy MCP (`/cmd_vel` e serviços de lifecycle recusados) | `python -I tools/rover_mcp_safe/test_policy.py` | CI quando muda `tools/` |
+| Formatação Python / C++ | black (linha 90), clang-format 14 | CI em todo push |
+| Testes de lint do ament | `colcon test` dentro do container | Local |
+| Testes ponta a ponta de navegação e LLM | ver [`tools/README.md`](tools/README.md) | Local, contra a simulação |
 
 ## Comandar o rover com IA
 
@@ -152,7 +228,7 @@ Passo a passo:
 ## Dev Container (VS Code)
 
 A pasta `.devcontainer/` prepara ROS 2 Jazzy, Gazebo e RViz2 com X11. Guia:
-[DEVCONTAINER_GUIA_PT.md](./DEVCONTAINER_GUIA_PT.md).
+[Dev Container](https://blazemorales.github.io/rover_circ_ares/dev-container/).
 
 ## Créditos e citação
 

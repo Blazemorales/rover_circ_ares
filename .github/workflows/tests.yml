@@ -1,0 +1,30 @@
+# Offline tests that need no ROS: the MCP proxy safety policy
+# (e.g. /cmd_vel and lifecycle services must stay refused).
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    paths: ["tools/**", ".github/workflows/tests.yml"]
+  pull_request:
+    branches: [main]
+    paths: ["tools/**", ".github/workflows/tests.yml"]
+  workflow_dispatch:
+
+jobs:
+  mcp_policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ros-mcp
+        run: pip install "ros-mcp==3.1.2"
+
+      - name: MCP proxy policy test
+        run: python -I tools/rover_mcp_safe/test_policy.py

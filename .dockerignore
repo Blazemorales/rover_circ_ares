@@ -1,8 +1,9 @@
-# colcon artifacts (some are committed by mistake) and non-ROS content
+# Only ros2/ (and tools/, harmless) matter for the image; skip VCS, colcon
+# output and documentation (the site lives in docs/site).
 .git
 build
 install
 log
-hugoplate
 docs
 **/__pycache__
+**/node_modules

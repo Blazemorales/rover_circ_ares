@@ -29,6 +29,29 @@ custom_script = ""
 # copyright
 copyright = "The template of this page was designed & developed by [Zeon Studio](https://zeon.studio)"
 
+# Social links (footer)
+# icon: Font Awesome class — https://fontawesome.com/icons
+# For e-mail, use the "mailto:" prefix in link.
+[[social]]
+name = "Instagram"
+icon = "fab fa-instagram"
+link = "https://www.instagram.com/ares.unb/"
+
+[[social]]
+name = "LinkedIn"
+icon = "fab fa-linkedin-in"
+link = "https://www.linkedin.com/company/aresunb/"
+
+[[social]]
+name = "GitHub"
+icon = "fab fa-github"
+link = "https://github.com/aresunbrovers"
+
+[[social]]
+name = "E-mail"
+icon = "fas fa-envelope"
+link = "mailto:ares.unb.rovers@gmail.com"
+
 # Preloader
 # preloader module: https://github.com/gethugothemes/hugo-modules/tree/master/components/preloader
 [preloader]

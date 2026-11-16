@@ -139,7 +139,7 @@ bloco `<physics>`) e o gpu_lidar. A próxima ideia é testar `max_step_size`
 0,002/0,004 com checagens de sanidade.
 
 **Não bloqueantes:**
-- O footprint em `rover_navigation/params/costmaps.yaml` é um placeholder de
+- O footprint em `ros2/rover_navigation/params/costmaps.yaml` é um placeholder de
   0,6×0,6 m, não a medida real do chassi.
 - A rolling window do `global_costmap` tem 30×30 m. Se o explore parecer
   "míope", aumente.

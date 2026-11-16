@@ -50,9 +50,22 @@ url = "/chat-web"
 weight = 2
 
 [[main]]
+identifier = "objetivos"
 name = "Goals"
-url = "/requisitos-circ"
+url = "#"
 weight = 5
+
+[[main]]
+parent = "objetivos"
+name = "CIRC Checklist"
+url = "/requisitos-circ"
+weight = 1
+
+[[main]]
+parent = "objetivos"
+name = "Readiness Audit"
+url = "/auditoria-prontidao"
+weight = 2
 
 [[main]]
 parent = "simulacao"

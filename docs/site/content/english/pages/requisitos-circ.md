@@ -130,13 +130,20 @@ Os números `#` são as issues do repositório `Blazemorales/rover_circ_ares`. A
 - [x] ROS 2 Jazzy com Nav2, rtabmap e slam_toolbox
 - [x] Simulação em Gazebo com ros2_control
 - [x] Teleoperação por joystick e teclado
-- [x] CI, imagem Docker e implantação via systemd
+- [x] CI e imagem Docker (o workspace compila de uma máquina limpa)
 - [x] Navegação em terreno irregular e missões em sequência (`run_mission`)
+
+## Parcialmente atendido
+
+- [ ] Implantação via systemd: o serviço existe, mas o boot ainda não é reproduzível (ver [auditoria de prontidão](/auditoria-prontidao), item L10, e [#32](https://github.com/Blazemorales/rover_circ_ares/issues/32))
 
 ## Ordem sugerida
 
-1. [#11](https://github.com/Blazemorales/rover_circ_ares/issues/11), [#12](https://github.com/Blazemorales/rover_circ_ares/issues/12) e [#14](https://github.com/Blazemorales/rover_circ_ares/issues/14): GNSS, rumo e actions de movimento
-2. [#16](https://github.com/Blazemorales/rover_circ_ares/issues/16) e [#15](https://github.com/Blazemorales/rover_circ_ares/issues/15): ArUco e UI do juiz. Com isso a prova de demolição já pode ser treinada inteira na simulação.
-3. [#18](https://github.com/Blazemorales/rover_circ_ares/issues/18) e [#19](https://github.com/Blazemorales/rover_circ_ares/issues/19): segurança e comunicação, antes de testar em hardware real
-4. [#13](https://github.com/Blazemorales/rover_circ_ares/issues/13), [#17](https://github.com/Blazemorales/rover_circ_ares/issues/17), [#20](https://github.com/Blazemorales/rover_circ_ares/issues/20) a [#22](https://github.com/Blazemorales/rover_circ_ares/issues/22) e [#24](https://github.com/Blazemorales/rover_circ_ares/issues/24): as outras provas
-5. [#23](https://github.com/Blazemorales/rover_circ_ares/issues/23): braço, no 1º semestre de 2028
+A segurança vem primeiro: sem ela não dá para ligar o rover real nem fazer bancada. Detalhes na [auditoria de prontidão](/auditoria-prontidao).
+
+1. [#32](https://github.com/Blazemorales/rover_circ_ares/issues/32) e [#18](https://github.com/Blazemorales/rover_circ_ares/issues/18): respostas da equipe sobre o hardware e segurança dos motores (watchdog, parada ao encerrar, limites), antes de qualquer teste em hardware real
+2. [#19](https://github.com/Blazemorales/rover_circ_ares/issues/19): rede entre estação e rover, com teste de queda de link
+3. [#11](https://github.com/Blazemorales/rover_circ_ares/issues/11), [#12](https://github.com/Blazemorales/rover_circ_ares/issues/12) e [#14](https://github.com/Blazemorales/rover_circ_ares/issues/14): GNSS, rumo e actions de movimento
+4. [#16](https://github.com/Blazemorales/rover_circ_ares/issues/16) e [#15](https://github.com/Blazemorales/rover_circ_ares/issues/15): ArUco e UI do juiz. Com isso a prova de demolição já pode ser treinada inteira na simulação.
+5. [#13](https://github.com/Blazemorales/rover_circ_ares/issues/13), [#17](https://github.com/Blazemorales/rover_circ_ares/issues/17), [#20](https://github.com/Blazemorales/rover_circ_ares/issues/20) a [#22](https://github.com/Blazemorales/rover_circ_ares/issues/22) e [#24](https://github.com/Blazemorales/rover_circ_ares/issues/24): as outras provas
+6. [#23](https://github.com/Blazemorales/rover_circ_ares/issues/23): braço, no 1º semestre de 2028

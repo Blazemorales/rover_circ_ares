@@ -4,3 +4,8 @@
 .btn {
   @apply rounded-md shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md;
 }
+
+/* Footer social icons: round, lifted on hover */
+.social-icons li a {
+  @apply h-10 w-10 rounded-full transition-all duration-200 hover:-translate-y-1 hover:opacity-90 hover:shadow-md;
+}

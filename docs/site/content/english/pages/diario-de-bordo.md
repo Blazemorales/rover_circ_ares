@@ -90,6 +90,90 @@ o comportamento sem a gente saber.
 
 As mudanças estão na branch `fix/motor-safety-f0`.
 
+## 2026-11-19 — Um só "volante": quem manda nas rodas e o botão de parada
+
+**Em uma frase:** antes, vários programas davam ordens de velocidade ao
+rover ao mesmo tempo, sem ninguém decidir quem tinha razão. Agora existe um
+árbitro único, o joystick sempre ganha e um botão de parada por software
+trava tudo.
+
+### O problema
+
+As ordens de velocidade chegam às rodas por um canal chamado `/cmd_vel`. É
+como um volante que qualquer um pode pegar. Na simulação, **7 programas**
+publicavam nele: o piloto automático (Nav2), cinco manobras dele (girar no
+lugar, dar ré e outras) e até uma ponte do simulador que não servia para
+nada. O joystick e o teclado também escreveriam ali. Quando dois falam ao
+mesmo tempo, as rodas obedecem a quem falou por último.
+
+Dois "filtros de segurança" do Nav2 também estavam fora do caminho:
+
+- O **suavizador de velocidade** (`velocity_smoother`), que evita arrancadas
+  e freadas bruscas, rodava, mas ninguém lia o que ele produzia.
+- O **monitor de colisão** (`collision_monitor`), que freia o rover antes de
+  bater num obstáculo visto pelo lidar, estava configurado mas nem era
+  ligado.
+
+### O que mudou
+
+As ordens agora passam por uma fila fixa, e só um programa, o `twist_mux`,
+pega o volante:
+
+```
+piloto automático ─► suavizador ─► monitor de colisão ─┐
+joystick ───────────────────────────────────────────────┤ twist_mux ─► rodas
+teclado ────────────────────────────────────────────────┘     ▲
+                                                     botão /estop
+```
+
+- **Prioridade:** o joystick vence o teclado, que vence o piloto automático.
+  Se o operador mexe no joystick, o rover obedece a ele na hora. Quando ele
+  solta o joystick, o piloto volta a mandar meio segundo depois.
+- **Parada de emergência por software (`/estop`):** uma mensagem `true`
+  bloqueia todas as entradas, inclusive o joystick. O bloqueio fica até
+  alguém mandar `false`; não se libera sozinho.
+- **Freio de segurança:** se nenhuma ordem chega por meio segundo, o
+  tradutor de velocidade (`vel_parser`) manda parar. Isso foi necessário
+  porque o árbitro, quando bloqueia, simplesmente se cala em vez de mandar
+  "zero", e o último comando continuaria valendo.
+
+### O que os testes revelaram
+
+Rodando na simulação, apareceram três problemas que a leitura do código não
+mostrava:
+
+1. **O `/estop` não parava o rover.** Três segundos depois de travar, as
+   rodas simuladas ainda giravam. A causa era o silêncio do árbitro, descrito
+   acima, e a correção foi o freio de meio segundo.
+2. **O monitor de colisão estava no relógio errado.** A simulação tem um
+   relógio próprio, e ele usava o do computador. Com isso, achava que todas
+   as leituras do lidar eram de anos atrás, descartava todas e, por
+   segurança, segurava o rover parado.
+3. **O monitor de colisão procurava uma peça que não existe.** A
+   configuração citava um ponto de referência chamado `base_footprint`, que o
+   modelo deste rover não tem. O certo é `base_link`.
+
+### Resultado na simulação
+
+- O canal das rodas tem **um só** publicador (eram 7).
+- O teclado move o rover, e o joystick passa por cima do teclado.
+- O `/estop` zera as rodas em cerca de 0,3 s, e elas só voltam quando ele é
+  liberado.
+- Um objetivo de 2 m do piloto automático andou, parou no `/estop` e chegou
+  ao destino depois de liberado.
+
+### O que ainda falta
+
+- **Testar o freio por obstáculo:** ver o monitor de colisão parar o rover
+  diante de um obstáculo de verdade. Até agora só foi confirmado que ele
+  recebe o lidar e deixa passar a velocidade.
+- **Testar o joystick físico** no rover real.
+- **Reconstruir a imagem Docker da equipe:** o `twist_mux` é um pacote novo.
+- **Expor o `/estop` à IA e ao chat** (passo F3). Hoje ele só pode ser
+  acionado de dentro do ROS.
+
+As mudanças estão na branch `feat/cmd-vel-chain-f1`.
+
 ## 2026-11-16 — Pendências em aberto
 
 Estado consolidado das pendências técnicas (antes no `to_continue.md`, que

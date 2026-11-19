@@ -46,7 +46,7 @@ inteiro (Gazebo → EKF → slam_toolbox/AMCL → Nav2 → explore_lite) via
 <code>IncludeLaunchDescription</code> e só acrescenta o rosbridge, 5 s depois. Nenhuma
 configuração de Nav2 foi duplicada. O mundo padrão é <code>moon.world</code>
 (<code>initial_pose_z:=2.11</code>).</p><p>No robô real (Pi), só o rosbridge:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span>ros2 launch rover_bringup rosbridge.launch.py
-</span></span></code></pre></div><p>No host (sem ROS instalado):</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span>pipx install ros-mcp ollmcp
+</span></span></code></pre></div><p>No host (sem ROS instalado):</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span>pipx install ros-mcp<span style=color:#f92672>==</span>3.1.2 ollmcp
 </span></span><span style=display:flex><span>ollama pull qwen2.5:7b
 </span></span><span style=display:flex><span>tools/rover_mcp_safe/setup_ollmcp.sh            <span style=color:#75715e># robô real: setup_ollmcp.sh &lt;IP da Pi&gt;</span>
 </span></span><span style=display:flex><span>ollmcp -j ~/.config/ollmcp/rover-servers.json

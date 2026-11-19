@@ -84,11 +84,11 @@ repositório (depende de hardware ou de documento externo).
 | L1 | Kill switch físico, vermelho, iluminado, no topo, independente de computador [R5] | ❔ | É hardware. Nada no repositório confirma que existe. |
 | L2 | Fusível ou disjuntor; proteção por software não vale [R5] | ❔ | É hardware. |
 | L3 | 1 h só com bateria de bordo; bateria e BMS comerciais [R3][R5] | ❔ | Não há orçamento de energia ([#25](https://github.com/Blazemorales/rover_circ_ares/issues/25)). |
-| L4 | Parar os motores quando o comando some (watchdog, perda de link) [R5 recomendado] | ❌ | `controller_node.cpp` só escreve nos servos quando chega mensagem; não há timer nem timeout. O último comando vale para sempre. |
-| L5 | Parar os motores ao encerrar o programa (Ctrl+C, `systemctl stop`, falha) [I] | ❌ | `ControllerNode::shutdown()` chama `kill_motors()`, mas **ninguém chama** `shutdown()`: `controller_node_main.cpp` só faz `spin` e `rclcpp::shutdown()`. |
-| L6 | Limitar os comandos de motor [I] | ❌ | `vel_parser_node.cpp` limita só o lado positivo (`std::min`). Com `linear.x = -3`, o duty vai a −3000; a faixa do LX-16A é ±1000. |
-| L7 | Validar mensagens de motor [I] | ❌ | `motor_controller.cpp` lê `corner_ticks[0..3]` e `drive_ticks[0..5]` sem conferir o tamanho. Um `ros2 topic pub` errado na bancada lê memória fora do vetor. |
-| L8 | Verificação automática na partida (montagem em 15 min) [R3] | 🟡 | `controller_node.cpp` confere se o device existe e tem permissão. Mas `lx16a.cpp:39` ignora o retorno de `connect()` e ninguém verifica se os servos respondem. |
+| L4 | Parar os motores quando o comando some (watchdog, perda de link) [R5 recomendado] | 🟡 | **Código pronto, falta bancada.** `controller_node` zera o duty se não chega comando por `cmd_timeout` (padrão 0,5 s) e repete o zero a cada 100 ms. |
+| L5 | Parar os motores ao encerrar o programa (Ctrl+C, `systemctl stop`, falha) [I] | 🟡 | **Código pronto, falta bancada.** `controller_node_main.cpp` chama `shutdown()` (`kill_motors()`) depois do `spin`, no SIGINT e no SIGTERM. Um `kill -9` ou queda de energia ainda depende do watchdog do lado do hardware (kill switch). |
+| L6 | Limitar os comandos de motor [I] | ✅ | `vel_parser_node.cpp` limita `linear.x` e `angular.z` nos dois sentidos; antes, `angular.z` negativo além do limite gerava raio de curva fora da faixa. O duty já era limitado a ±1000 no driver (`lx16a.cpp`, `set_motor_mode`). Teste: `test/test_vel_parser.cpp`. |
+| L7 | Validar mensagens de motor [I] | ✅ | `controller_node` ignora `MotorsCommand` que não tenha 6 valores de tração e 4 de direção, e avisa no log. |
+| L8 | Verificação automática na partida (montagem em 15 min) [R3] | 🟡 | `controller_node.cpp` confere se o device existe e tem permissão, e o nó agora falha se `connect()` não abrir a serial. Ainda ninguém verifica se os servos respondem. |
 | L9 | Portas seriais estáveis [I] | ❌ | `urg_node_serial.yaml` e `ublox.yaml` usam **ambos** `/dev/ttyACM0`; servos em `/dev/ttyUSB0`. Sem regras udev, quem abre o quê depende da ordem em que o USB enumera. |
 | L10 | Boot reproduzível (systemd) | 🟡 | `ros2/rover_service/` existe, mas: `After=network.service` em vez de `network-online.target`; sem `Restart=on-failure`; sem `ROS_DOMAIN_ID`. Assume ROS no host, contra o README (ROS só em Docker). `install.sh` usa caminhos relativos e instala 3 pacotes à mão em vez de `rosdep`. |
 | L11 | Botão de habilitação no joystick (deadman) | 🟡 | `ps3.yaml`: `enable_button: 8` (L2); soltar o botão manda velocidade zero. Não protege se o joystick ou o nó cair no meio do comando (ver L4). |
@@ -815,6 +815,84 @@ momento — o que foi decidido, o que quebrou e como foi corrigido. Ver também
 os [Comandos Essenciais](/comandos-essenciais-simulacao) para rodar o que
 está descrito aqui.
 
+## 2026-11-19 — Segurança dos motores: o rover para sozinho quando algo dá errado
+
+**Em uma frase:** antes, se o computador do rover perdesse o contato com quem
+o comandava, as rodas continuavam girando para sempre. Agora elas param em
+meio segundo.
+
+### Como os motores recebem ordens
+
+Pense numa cadeia de recados. Quem dirige (o joystick, o piloto automático
+Nav2 ou a IA) diz "ande para frente a tal velocidade". Um programa traduz isso
+em quanto cada uma das 6 rodas deve girar e para que ângulo cada uma das 4
+rodas de direção deve virar. Um último programa, o `controller_node`, recebe
+esses números e os manda pelo cabo serial para os servos LX-16A, que são os
+motores. No ROS 2, cada um desses programas se chama **nó**, e os recados
+viajam por canais com nome, os **tópicos**.
+
+### O que estava errado
+
+A [auditoria de prontidão](/auditoria-prontidao) apontou quatro problemas
+nessa cadeia (itens L4 a L7):
+
+1. **O último recado valia para sempre.** O servo só muda quando recebe uma
+   ordem nova. Se o joystick desconectasse ou o Wi-Fi caísse, o rover seguia
+   andando na última velocidade, sem ninguém no controle.
+2. **Fechar o programa não parava as rodas.** Já existia uma função de
+   "desligar motores", mas nada a chamava. Um Ctrl+C ou um desligamento do
+   serviço deixava as rodas girando.
+3. **Valores negativos não tinham limite.** Havia um teto para a velocidade
+   positiva, mas não para a negativa. Uma curva fechada para um dos lados
+   pedia um raio de curva fora da faixa que a direção aguenta.
+4. **Recados malformados eram aceitos.** Uma mensagem com menos números do
+   que o esperado (por exemplo, um comando digitado errado na bancada) fazia o
+   programa ler memória que não devia.
+
+Um quinto ponto ficou de bônus: se o cabo serial não abrisse, o programa
+fingia que estava tudo certo.
+
+### O que mudou
+
+| Problema | Correção |
+|---|---|
+| Último recado valia para sempre | Um **watchdog** (cão de guarda) confere 10 vezes por segundo quando chegou o último comando. Se passou de 0,5 s, manda velocidade zero para as rodas e repete o zero até chegar comando novo. O tempo é configurável (`cmd_timeout`). |
+| Fechar o programa não parava | Ao receber Ctrl+C ou `systemctl stop`, o programa zera as rodas e centraliza a direção antes de sair. |
+| Valores negativos sem limite | Velocidade e giro agora têm limite nos dois sentidos. |
+| Recados malformados | Mensagem sem exatamente 6 valores de tração e 4 de direção é ignorada, com aviso no log. |
+| Serial que não abre | O programa para com erro claro, em vez de seguir rodando sem mandar nada. |
+
+Junto com isso, a versão do `ros-mcp` (a ponte entre a IA e o ROS) foi fixada
+em 3.1.2, que é a versão testada. Assim, uma atualização automática não muda
+o comportamento sem a gente saber.
+
+### Como foi testado, sem o rover
+
+- **Teste automático:** um teste confere que uma ordem acima do limite, para
+  frente ou para trás, produz o mesmo comando que o próprio limite. Os 17
+  testes do pacote passaram.
+- **Barramento falso:** um script cria uma porta serial de mentira e mostra o
+  que cada servo receberia. Com ela:
+  - as rodas foram para 500 e voltaram a 0 cerca de 0,5 s depois que os
+    comandos pararam;
+  - uma mensagem com tamanho errado foi recusada;
+  - o Ctrl+C centralizou a direção e o programa saiu sem erro.
+
+### O que ainda falta
+
+- **Bancada com o rover real**, com as rodas suspensas e o kill switch à mão.
+  É preciso confirmar que os servos de verdade obedecem e cronometrar a
+  parada.
+- **Casos que o software não cobre:** se o programa for morto à força
+  (`kill -9`) ou faltar energia no computador, nenhum código roda. Aí quem
+  protege é o kill switch físico.
+- **Confirmar o 0,5 s com a equipe** (pergunta Q5 da
+  [issue #32](https://github.com/Blazemorales/rover_circ_ares/issues/32)).
+- **Colocar esse teste na CI**, para que uma mudança futura não desfaça a
+  proteção sem ninguém perceber.
+
+As mudanças estão na branch `fix/motor-safety-f0`.
+
 ## 2026-11-16 — Pendências em aberto
 
 Estado consolidado das pendências técnicas (antes no `to_continue.md`, que
@@ -1283,7 +1361,7 @@ ros2 launch rover_bringup rosbridge.launch.py
 No host (sem ROS instalado):
 
 ```bash
-pipx install ros-mcp ollmcp
+pipx install ros-mcp==3.1.2 ollmcp
 ollama pull qwen2.5:7b
 tools/rover_mcp_safe/setup_ollmcp.sh            # robô real: setup_ollmcp.sh <IP da Pi>
 ollmcp -j ~/.config/ollmcp/rover-servers.json

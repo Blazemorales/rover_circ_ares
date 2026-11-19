@@ -23,6 +23,7 @@
 #ifndef CONTROLLER_NODE_HPP
 #define CONTROLLER_NODE_HPP
 
+#include <chrono>
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
@@ -39,6 +40,11 @@ public:
   void shutdown();
 
 private:
+  void watchdog();
+
+  std::chrono::steady_clock::time_point last_cmd_time;
+  std::chrono::duration<double> cmd_timeout;
+  rclcpp::TimerBase::SharedPtr watchdog_timer;
   std::unique_ptr<lx16a::MotorController> motor_controller;
   rclcpp::Subscription<rover_msgs::msg::MotorsCommand>::SharedPtr subscription;
 };

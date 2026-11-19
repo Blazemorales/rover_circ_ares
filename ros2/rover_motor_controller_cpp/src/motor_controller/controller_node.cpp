@@ -43,6 +43,8 @@ ControllerNode::ControllerNode() : rclcpp::Node("controller_node") {
   this->declare_parameter<std::string>("motor_controller_device",
                                        "/dev/ttyUSB0");
   this->declare_parameter<int>("baud_rate", 115200);
+  // stop the wheels if no command arrives for this long (seconds)
+  this->declare_parameter<double>("cmd_timeout", 0.5);
 
   // getting params
   std::string motor_controller_device;
@@ -92,12 +94,35 @@ ControllerNode::ControllerNode() : rclcpp::Node("controller_node") {
   this->subscription =
       this->create_subscription<rover_msgs::msg::MotorsCommand>(
           "motors_command", 10, std::bind(&ControllerNode::callback, this, _1));
+
+  this->cmd_timeout = std::chrono::duration<double>(
+      this->get_parameter("cmd_timeout").as_double());
+  this->watchdog_timer =
+      this->create_wall_timer(std::chrono::milliseconds(100),
+                              std::bind(&ControllerNode::watchdog, this));
 }
 
 void ControllerNode::callback(
     const rover_msgs::msg::MotorsCommand::SharedPtr msg) {
+  if (msg->drive_motor.size() != 6 || msg->corner_motor.size() != 4) {
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 2000,
+                         "Ignoring motors_command: expected 6 drive and 4 "
+                         "corner values, got %zu and %zu",
+                         msg->drive_motor.size(), msg->corner_motor.size());
+    return;
+  }
+  this->last_cmd_time = std::chrono::steady_clock::now();
   this->motor_controller->corner_to_position(msg->corner_motor);
   this->motor_controller->send_motor_duty(msg->drive_motor);
+}
+
+// Resent every tick while stale: the bus has no ack, a lost frame must not
+// leave a wheel spinning.
+void ControllerNode::watchdog() {
+  if (std::chrono::steady_clock::now() - this->last_cmd_time >
+      this->cmd_timeout) {
+    this->motor_controller->send_motor_duty({0, 0, 0, 0, 0, 0});
+  }
 }
 
 void ControllerNode::shutdown() { this->motor_controller->kill_motors(); }

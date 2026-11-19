@@ -80,8 +80,11 @@ void VelParserNode::callback(const geometry_msgs::msg::Twist::SharedPtr msg) {
   auto motors_command = rover_msgs::msg::MotorsCommand();
 
   // normalize speed and steering
-  float linear = std::min((float)msg->linear.x, this->linear_limit);
-  float angular = std::min((float)msg->angular.z, this->angular_limit);
+  // clamp both signs: |angular| > limit puts the turn radius out of range
+  float linear = std::max(-this->linear_limit,
+                          std::min((float)msg->linear.x, this->linear_limit));
+  float angular = std::max(-this->angular_limit, std::min((float)msg->angular.z,
+                                                          this->angular_limit));
   float speed = sqrt(pow(linear, 2) + pow(angular * this->angular_factor, 2));
 
   if (msg->linear.x < 0) {
@@ -183,7 +186,7 @@ std::vector<float> VelParserNode::calculate_velocity(float velocity,
     float abs_v5 = abs(velocity) * (e / rx);
     float abs_v6 = abs(velocity) * sqrt(a + d) / rx;
 
-    if (velocity < 0) { //#Go back
+    if (velocity < 0) { // #Go back
 
       if (radius < 0) { // Turn Left
         new_velocity = {-abs_v4, -abs_v5, -abs_v6, abs_v1, abs_v2, abs_v3};

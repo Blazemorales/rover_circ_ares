@@ -12,6 +12,84 @@ momento — o que foi decidido, o que quebrou e como foi corrigido. Ver também
 os [Comandos Essenciais](/comandos-essenciais-simulacao) para rodar o que
 está descrito aqui.
 
+## 2026-11-19 — Segurança dos motores: o rover para sozinho quando algo dá errado
+
+**Em uma frase:** antes, se o computador do rover perdesse o contato com quem
+o comandava, as rodas continuavam girando para sempre. Agora elas param em
+meio segundo.
+
+### Como os motores recebem ordens
+
+Pense numa cadeia de recados. Quem dirige (o joystick, o piloto automático
+Nav2 ou a IA) diz "ande para frente a tal velocidade". Um programa traduz isso
+em quanto cada uma das 6 rodas deve girar e para que ângulo cada uma das 4
+rodas de direção deve virar. Um último programa, o `controller_node`, recebe
+esses números e os manda pelo cabo serial para os servos LX-16A, que são os
+motores. No ROS 2, cada um desses programas se chama **nó**, e os recados
+viajam por canais com nome, os **tópicos**.
+
+### O que estava errado
+
+A [auditoria de prontidão](/auditoria-prontidao) apontou quatro problemas
+nessa cadeia (itens L4 a L7):
+
+1. **O último recado valia para sempre.** O servo só muda quando recebe uma
+   ordem nova. Se o joystick desconectasse ou o Wi-Fi caísse, o rover seguia
+   andando na última velocidade, sem ninguém no controle.
+2. **Fechar o programa não parava as rodas.** Já existia uma função de
+   "desligar motores", mas nada a chamava. Um Ctrl+C ou um desligamento do
+   serviço deixava as rodas girando.
+3. **Valores negativos não tinham limite.** Havia um teto para a velocidade
+   positiva, mas não para a negativa. Uma curva fechada para um dos lados
+   pedia um raio de curva fora da faixa que a direção aguenta.
+4. **Recados malformados eram aceitos.** Uma mensagem com menos números do
+   que o esperado (por exemplo, um comando digitado errado na bancada) fazia o
+   programa ler memória que não devia.
+
+Um quinto ponto ficou de bônus: se o cabo serial não abrisse, o programa
+fingia que estava tudo certo.
+
+### O que mudou
+
+| Problema | Correção |
+|---|---|
+| Último recado valia para sempre | Um **watchdog** (cão de guarda) confere 10 vezes por segundo quando chegou o último comando. Se passou de 0,5 s, manda velocidade zero para as rodas e repete o zero até chegar comando novo. O tempo é configurável (`cmd_timeout`). |
+| Fechar o programa não parava | Ao receber Ctrl+C ou `systemctl stop`, o programa zera as rodas e centraliza a direção antes de sair. |
+| Valores negativos sem limite | Velocidade e giro agora têm limite nos dois sentidos. |
+| Recados malformados | Mensagem sem exatamente 6 valores de tração e 4 de direção é ignorada, com aviso no log. |
+| Serial que não abre | O programa para com erro claro, em vez de seguir rodando sem mandar nada. |
+
+Junto com isso, a versão do `ros-mcp` (a ponte entre a IA e o ROS) foi fixada
+em 3.1.2, que é a versão testada. Assim, uma atualização automática não muda
+o comportamento sem a gente saber.
+
+### Como foi testado, sem o rover
+
+- **Teste automático:** um teste confere que uma ordem acima do limite, para
+  frente ou para trás, produz o mesmo comando que o próprio limite. Os 17
+  testes do pacote passaram.
+- **Barramento falso:** um script cria uma porta serial de mentira e mostra o
+  que cada servo receberia. Com ela:
+  - as rodas foram para 500 e voltaram a 0 cerca de 0,5 s depois que os
+    comandos pararam;
+  - uma mensagem com tamanho errado foi recusada;
+  - o Ctrl+C centralizou a direção e o programa saiu sem erro.
+
+### O que ainda falta
+
+- **Bancada com o rover real**, com as rodas suspensas e o kill switch à mão.
+  É preciso confirmar que os servos de verdade obedecem e cronometrar a
+  parada.
+- **Casos que o software não cobre:** se o programa for morto à força
+  (`kill -9`) ou faltar energia no computador, nenhum código roda. Aí quem
+  protege é o kill switch físico.
+- **Confirmar o 0,5 s com a equipe** (pergunta Q5 da
+  [issue #32](https://github.com/Blazemorales/rover_circ_ares/issues/32)).
+- **Colocar esse teste na CI**, para que uma mudança futura não desfaça a
+  proteção sem ninguém perceber.
+
+As mudanças estão na branch `fix/motor-safety-f0`.
+
 ## 2026-11-16 — Pendências em aberto
 
 Estado consolidado das pendências técnicas (antes no `to_continue.md`, que

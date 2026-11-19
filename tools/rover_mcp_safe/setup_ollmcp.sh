@@ -2,7 +2,7 @@
 # Configure ollmcp (mcp-client-for-ollama) to talk to the rover through the
 # restricted rover_mcp_safe proxy -- never to the raw ros-mcp server.
 #
-#   pipx install ros-mcp ollmcp
+#   pipx install ros-mcp==3.1.2 ollmcp
 #   ollama pull qwen2.5:7b
 #   tools/rover_mcp_safe/setup_ollmcp.sh [ROSBRIDGE_IP] [MODEL]
 #   ollmcp -j ~/.config/ollmcp/rover-servers.json
@@ -18,7 +18,7 @@ VENV_PY="$(pipx environment --value PIPX_LOCAL_VENVS)/ros-mcp/bin/python"
 CFG_DIR="$HOME/.config/ollmcp"
 mkdir -p "$CFG_DIR"
 
-[ -x "$VENV_PY" ] || { echo "ros-mcp venv not found: run 'pipx install ros-mcp'" >&2; exit 1; }
+[ -x "$VENV_PY" ] || { echo "ros-mcp venv not found: run 'pipx install ros-mcp==3.1.2'" >&2; exit 1; }
 
 "$VENV_PY" -I - "$HERE" "$VENV_PY" "$ROSBRIDGE_IP" "$MODEL" "$CFG_DIR" <<'EOF'
 import json, os, sys

@@ -63,7 +63,7 @@ ros2 launch rover_bringup rosbridge.launch.py
 No host (sem ROS instalado):
 
 ```bash
-pipx install ros-mcp ollmcp
+pipx install ros-mcp==3.1.2 ollmcp
 ollama pull qwen2.5:7b
 tools/rover_mcp_safe/setup_ollmcp.sh            # robô real: setup_ollmcp.sh <IP da Pi>
 ollmcp -j ~/.config/ollmcp/rover-servers.json

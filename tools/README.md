@@ -18,7 +18,7 @@ Full documentation (Portuguese): [ROS-MCP](https://blazemorales.github.io/rover_
 ## Setup (host)
 
 ```bash
-pipx install ros-mcp ollmcp           # ros-mcp brings fastmcp and websocket-client
+pipx install ros-mcp==3.1.2 ollmcp    # ros-mcp brings fastmcp and websocket-client
 PY=~/.local/share/pipx/venvs/ros-mcp/bin/python
 ```
 

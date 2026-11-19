@@ -28,7 +28,9 @@ using namespace motor_controller;
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<ControllerNode>());
+  auto node = std::make_shared<ControllerNode>();
+  rclcpp::spin(node); // returns on SIGINT/SIGTERM
+  node->shutdown();   // zero duty and center steering before exiting
   rclcpp::shutdown();
   return 0;
 }

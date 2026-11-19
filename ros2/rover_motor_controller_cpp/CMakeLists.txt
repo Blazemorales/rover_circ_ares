@@ -62,6 +62,11 @@ DESTINATION share/${PROJECT_NAME}/
 if(BUILD_TESTING)
   find_package(ament_cmake_clang_format REQUIRED)
   ament_clang_format(CONFIG_FILE .clang-format)
+
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_vel_parser test/test_vel_parser.cpp
+    src/motor_controller/vel_parser_node.cpp)
+  ament_target_dependencies(test_vel_parser rclcpp rover_msgs geometry_msgs)
 endif()
 
 ament_package()

@@ -24,6 +24,7 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -36,7 +37,9 @@ using namespace lx16a;
 LX16A::LX16A(std::string serial_port, unsigned int baud_rate) {
   this->serial = std::make_unique<Serial>(Serial(serial_port, baud_rate));
   this->mtx = std::make_unique<std::mutex>();
-  this->serial->connect();
+  if (!this->serial->connect()) {
+    throw std::runtime_error("Cannot open serial port " + serial_port);
+  }
 }
 
 // serial functions
